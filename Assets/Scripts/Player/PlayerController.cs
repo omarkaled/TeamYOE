@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform cylinderCenter;
     [SerializeField] private float ragdollRecoveryTime = 2f;
 
-    bool isOnSafePlatform = false;
+    public bool isOnSafePlatform = false;
     private Coroutine ragdollCooldownRoutine;
 
     [Header("Events")]
