@@ -1,5 +1,7 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
@@ -22,12 +24,26 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
     private bool isGrounded;
     private bool canJump = true;
-    private bool isRagdoll = false;
     private MovingPlatform currentPlatform;
     [SerializeField] private Transform hipsBone;
-    [SerializeField] private Rigidbody[] ragdollRigidbodies;
     [SerializeField] private Animator playerAnimator;
-    
+    [SerializeField] private GameObject playerMesh;
+
+    [Header("Ragdoll")]
+    [SerializeField] private Rigidbody[] ragdollRigidbodies;
+    [SerializeField] private Transform cylinderCenter;
+    [SerializeField] private float ragdollRecoveryTime = 2f;
+
+    bool isOnSafePlatform = false;
+    private Coroutine ragdollCooldownRoutine;
+
+    [Header("Events")]
+    public UnityEvent OnRagdollActivate;
+    public UnityEvent OnRagdollDeactivate;
+
+    [Header("Don't worry about these")]
+    [SerializeField] private float safeAreaBottomMin = 220f;
+    [SerializeField] private float safeAreaBottomMax = 320f;
 
     public enum PlayerStates
     {
@@ -35,6 +51,8 @@ public class PlayerController : MonoBehaviour
         AirControl,
         Ragdoll
     }
+
+
     public PlayerStates CurrentState = PlayerStates.FullControl;
 
     void Start()
@@ -47,11 +65,33 @@ public class PlayerController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        StartCoroutine(PositionUpdater());
     }
-
+    private IEnumerator PositionUpdater()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(2);
+            rb.position = hipsBone.position - new Vector3(0,0.25f,0);
+        }
+    }
     void Update()
     {
-        HandleInput();
+        if (CurrentState != PlayerStates.Ragdoll)
+        {
+            HandleInput();
+        }
+
+        float angle = GetPlayerAngleAroundCylinder();
+
+        // Check danger zone based on platform state
+        if (IsInDangerZone(angle) && !isOnSafePlatform)
+        {
+            if (CurrentState != PlayerStates.Ragdoll)
+            {
+                ActivateRagdoll();
+            }
+        }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -77,7 +117,6 @@ public class PlayerController : MonoBehaviour
         {
             case PlayerStates.Ragdoll:
                 currentPlatform = null;
-                isRagdoll = true;
                 return;
 
             case PlayerStates.FullControl:
@@ -95,6 +134,36 @@ public class PlayerController : MonoBehaviour
                 break;
         }
     }
+    float GetPlayerAngleAroundCylinder()
+    {
+        Vector3 relativePos = transform.position - cylinderCenter.position;
+        Vector2 flatDirection = new Vector2(relativePos.x, relativePos.y); // X-Y plane
+        float angle = Mathf.Atan2(flatDirection.y, flatDirection.x) * Mathf.Rad2Deg;
+        return (angle < 0) ? angle + 360f : angle;
+    }
+
+    bool IsInDangerZone(float angle)
+    {
+        return angle < safeAreaBottomMin || angle > safeAreaBottomMax;
+    }
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Platform"))
+        {
+            isOnSafePlatform = true;
+        }
+        if (other.gameObject.CompareTag("Untagged"))
+        {
+            isOnSafePlatform = false;
+        }
+    }
+    //void OnTriggerExit(Collider other)
+    //{
+    //    if (other.gameObject.CompareTag("Platform"))
+    //    {
+    //        isOnSafePlatform = false;
+    //    }
+    //}
 
     private void HandleInput()
     {
@@ -123,48 +192,67 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void LateUpdate()
+    public void ActivateRagdoll()
     {
-        if (isRagdoll)
+        if (ragdollCooldownRoutine  != null)
         {
-            //transform.position = hipsBone.position;
+            StopCoroutine(ragdollCooldownRoutine);
         }
-    }
-
-    void ActivateRagdoll()
-    {
+        ragdollCooldownRoutine = StartCoroutine(RagdollCooldownRoutine());
+        CurrentState = PlayerStates.Ragdoll;
+        OnRagdollActivate.Invoke();
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
-        isRagdoll = true;
-        // Disable player controller
         rb.isKinematic = true;
 
         // Enable ragdoll physics
         foreach (Rigidbody rb in ragdollRigidbodies)
         {
+            Collider collider = rb.GetComponent<Collider>();
+            collider.enabled = true;
             rb.linearVelocity = Vector3.zero; // <- this is important
             rb.angularVelocity = Vector3.zero;
             rb.isKinematic = false;
-            Collider collider = rb.GetComponent<Collider>();
-            collider.enabled = true;
         }
         playerAnimator.enabled = false;
     }
-
-    void DeactivateRagdoll()
+    private IEnumerator RagdollCooldownRoutine()
     {
-        isRagdoll = false;
+        yield return new WaitForSeconds(ragdollRecoveryTime);
+        rb.position = hipsBone.position;
+        while (!isGrounded)
+        {
+            yield return null;
+        }
+        DeactivateRagdoll();
+    }
+
+    public void DeactivateRagdoll()
+    {
+        CurrentState = PlayerStates.FullControl;
+        OnRagdollDeactivate.Invoke();
+        playerMesh.SetActive(false);
+        rb.position = hipsBone.position;
         // Disable player controller
         rb.isKinematic = false;
 
         // Enable ragdoll physics
         foreach (Rigidbody rb in ragdollRigidbodies)
         {
-            rb.isKinematic = true;
             Collider collider = rb.GetComponent<Collider>();
             collider.enabled = false;
+            rb.isKinematic = true;
         }
         playerAnimator.enabled = true;
+        playerMesh.SetActive(true);
+    }
+
+    public void AddExplosionForceToRagdoll(float explosionForce, Vector3 radiusOriginPoint, float explosionRadius)
+    {
+        foreach (Rigidbody rb in ragdollRigidbodies)
+        {
+            rb.AddExplosionForce(explosionForce, radiusOriginPoint, explosionRadius);
+        }
     }
     private void HandleJump()
     {
