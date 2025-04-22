@@ -1,26 +1,60 @@
+using JetBrains.Rider.Unity.Editor;
 using System.Collections;
-using Unity.VisualScripting;
+using System.Runtime.CompilerServices;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
+    public float airControlMultiplier = 0.4f;
     public float rotationSpeed = 10f;
     public float jumpForce = 7f;
+
+    [Header("Grounding")]
+    [SerializeField] private Transform jumpChecker;
+    [SerializeField] private float jumpCheckerRadius = 0.4f;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float jumpCooldown = 1f;
 
     [Header("References")]
     public Transform cameraTransform;
 
     private Rigidbody rb;
     private Vector3 moveDirection;
-    [SerializeField] private Transform jumpChecker;
-    [SerializeField] private float jumpCheckerRadius = 1f;
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private float jumpCooldown = 1f;
-    [SerializeField] private bool canJumpTimeLimit = true;
-    private bool canJump;
+    private bool isGrounded;
+    private bool canJump = true;
+    private MovingPlatform currentPlatform;
+    [SerializeField] private Transform hipsBone;
+    [SerializeField] private Animator playerAnimator;
+    [SerializeField] private GameObject playerMesh;
+
+    [Header("Ragdoll")]
+    [SerializeField] private Rigidbody[] ragdollRigidbodies;
+    [SerializeField] private Transform cylinderCenter;
+    [SerializeField] private float ragdollRecoveryTime = 2f;
+
+    public bool isOnSafePlatform = false;
+    private Coroutine ragdollCooldownRoutine;
+
+    [Header("Events")]
+    public UnityEvent OnRagdollActivate;
+    public UnityEvent OnRagdollDeactivate;
+
+    [Header("Don't worry about these")]
+    [SerializeField] private float safeAreaBottomMin = 220f;
+    [SerializeField] private float safeAreaBottomMax = 320f;
+
+    public enum PlayerStates
+    {
+        FullControl,
+        AirControl,
+        Ragdoll
+    }
+
+
+    public PlayerStates CurrentState = PlayerStates.FullControl;
 
     void Start()
     {
@@ -28,65 +62,271 @@ public class PlayerController : MonoBehaviour
         rb.freezeRotation = true;
 
         if (cameraTransform == null && Camera.main != null)
-        {
             cameraTransform = Camera.main.transform;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        StartCoroutine(PositionUpdater());
+    }
+    private IEnumerator PositionUpdater()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(2);
+            rb.position = hipsBone.position - new Vector3(0,0.25f,0);
         }
     }
-
     void Update()
     {
-        canJump = Physics.OverlapSphere(jumpChecker.position, jumpCheckerRadius, groundLayer).Length > 0;
-        // Unlock on Escape
+        if (CurrentState != PlayerStates.Ragdoll)
+        {
+            HandleInput();
+        }
+
+        float angle = GetPlayerAngleAroundCylinder();
+
+        // Check danger zone based on platform state
+        if (IsInDangerZone(angle) && !isOnSafePlatform)
+        {
+            if (CurrentState != PlayerStates.Ragdoll)
+            {
+                ActivateRagdoll();
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
-        if (Input.GetKeyDown(KeyCode.Space) && canJump && canJumpTimeLimit)
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            ActivateRagdoll();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            DeactivateRagdoll();
+        }
+
+        // Ground check
+        isGrounded = Physics.OverlapSphere(jumpChecker.position, jumpCheckerRadius, groundLayer).Length > 0;
+
+        // State management
+        switch (CurrentState)
+        {
+            case PlayerStates.Ragdoll:
+                currentPlatform = null;
+                return;
+
+            case PlayerStates.FullControl:
+            case PlayerStates.AirControl:
+                if (isGrounded)
+                {
+                    CurrentState = PlayerStates.FullControl;
+                    DetectGroundPlatform();
+                }
+                else
+                {
+                    CurrentState = PlayerStates.AirControl;
+                    currentPlatform = null;
+                }
+                break;
+        }
+    }
+    float GetPlayerAngleAroundCylinder()
+    {
+        Vector3 relativePos = transform.position - cylinderCenter.position;
+        Vector2 flatDirection = new Vector2(relativePos.x, relativePos.y); // X-Y plane
+        float angle = Mathf.Atan2(flatDirection.y, flatDirection.x) * Mathf.Rad2Deg;
+        return (angle < 0) ? angle + 360f : angle;
+    }
+
+    bool IsInDangerZone(float angle)
+    {
+        return angle < safeAreaBottomMin || angle > safeAreaBottomMax;
+    }
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Platform"))
+        {
+            isOnSafePlatform = true;
+        }
+        if (other.gameObject.CompareTag("Untagged"))
+        {
+            isOnSafePlatform = false;
+        }
+    }
+    //void OnTriggerExit(Collider other)
+    //{
+    //    if (other.gameObject.CompareTag("Platform"))
+    //    {
+    //        isOnSafePlatform = false;
+    //    }
+    //}
+
+    private void HandleInput()
+    {
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+
+        Vector3 camForward = Vector3.Scale(cameraTransform.forward, new Vector3(1, 0, 1)).normalized;
+        Vector3 camRight = cameraTransform.right;
+
+        Vector3 inputDir = (camRight * h + camForward * v).normalized;
+
+        switch (CurrentState)
+        {
+            case PlayerStates.FullControl:
+                moveDirection = inputDir;
+                HandleJump();
+                break;
+
+            case PlayerStates.AirControl:
+                moveDirection = inputDir * airControlMultiplier;
+                break;
+
+            case PlayerStates.Ragdoll:
+                moveDirection = Vector3.zero;
+                break;
+        }
+    }
+
+    public void ActivateRagdoll()
+    {
+        if (ragdollCooldownRoutine  != null)
+        {
+            StopCoroutine(ragdollCooldownRoutine);
+        }
+        ragdollCooldownRoutine = StartCoroutine(RagdollCooldownRoutine());
+        CurrentState = PlayerStates.Ragdoll;
+        OnRagdollActivate.Invoke();
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        // Enable ragdoll physics
+        foreach (Rigidbody rb in ragdollRigidbodies)
+        {
+            Collider collider = rb.GetComponent<Collider>();
+            collider.enabled = true;
+            rb.isKinematic = false;
+            rb.linearVelocity = Vector3.zero; // <- this is important
+            rb.angularVelocity = Vector3.zero;
+        }
+        playerAnimator.enabled = false;
+    }
+    private IEnumerator RagdollCooldownRoutine()
+    {
+        yield return new WaitForSeconds(ragdollRecoveryTime);
+        rb.position = hipsBone.position;
+        while (!isGrounded)
+        {
+            yield return null;
+        }
+        DeactivateRagdoll();
+    }
+
+    public void DeactivateRagdoll()
+    {
+        CurrentState = PlayerStates.FullControl;
+        OnRagdollDeactivate.Invoke();
+        playerMesh.SetActive(false);
+        rb.position = hipsBone.position;
+        // Disable player controller
+        rb.isKinematic = false;
+
+        // Enable ragdoll physics
+        foreach (Rigidbody rb in ragdollRigidbodies)
+        {
+            Collider collider = rb.GetComponent<Collider>();
+            collider.enabled = false;
+            rb.isKinematic = true;
+        }
+        playerAnimator.enabled = true;
+        playerMesh.SetActive(true);
+    }
+
+    public void AddExplosionForceToRagdoll(float explosionForce, Vector3 radiusOriginPoint, float explosionRadius)
+    {
+        foreach (Rigidbody rb in ragdollRigidbodies)
+        {
+            rb.AddExplosionForce(explosionForce, radiusOriginPoint, explosionRadius);
+        }
+    }
+
+    public void AddImpulseForceToRagdoll(Vector3 force, ForceMode forceMode)
+    {
+        foreach (Rigidbody rb in ragdollRigidbodies)
+        {
+            rb.AddForce(force, forceMode);
+        }
+    }
+    private void HandleJump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && canJump)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             StartCoroutine(JumpCooldownRoutine());
         }
-        // Input
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
-
-        // Camera-relative directions
-        Vector3 camForward = Vector3.Scale(cameraTransform.forward, new Vector3(1, 0, 1)).normalized;
-        Vector3 camRight = cameraTransform.right;
-
-        // Movement direction (no rotation influence)
-        moveDirection = (camRight * h + camForward * v).normalized;
     }
 
     private IEnumerator JumpCooldownRoutine()
     {
-        canJumpTimeLimit = false;
+        canJump = false;
         yield return new WaitForSeconds(jumpCooldown);
-        canJumpTimeLimit = true;
+        canJump = true;
     }
 
     void FixedUpdate()
     {
-        // Movement
-        Vector3 movement = moveDirection * moveSpeed;
-        Vector3 newVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
+        if (CurrentState == PlayerStates.Ragdoll)
+            return;
+
+        Vector3 velocity = moveDirection * moveSpeed;
+        Vector3 newVelocity = new Vector3(velocity.x, rb.linearVelocity.y, velocity.z);
+
+        // Apply platform velocity if grounded
+        if (isGrounded && currentPlatform != null)
+        {
+            Vector3 platformVelocity = currentPlatform.Velocity;
+            newVelocity += new Vector3(platformVelocity.x, 0f, platformVelocity.z);
+        }
+
         rb.linearVelocity = newVelocity;
 
-        // Rotation: only if moving forward
-        if (Vector3.Dot(moveDirection, cameraTransform.forward) > 0.7f)
+        // Rotate towards move direction
+        if (moveDirection.sqrMagnitude > 0.1f)
         {
-            Vector3 camForward = Vector3.Scale(cameraTransform.forward, new Vector3(1, 0, 1)).normalized;
-            if (camForward != Vector3.zero)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(camForward);
-                Quaternion smoothRotation = Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
-                rb.MoveRotation(smoothRotation);
-            }
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            Quaternion smoothRotation = Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+            rb.MoveRotation(smoothRotation);
         }
     }
 
-    private void OnDrawGizmos()
+    private void DetectGroundPlatform()
     {
-        Gizmos.DrawSphere(jumpChecker.position, jumpCheckerRadius);
+        Ray ray = new Ray(transform.position + Vector3.up * 0.75f, Vector3.down);
+        if (Physics.Raycast(ray, out RaycastHit hit, 1.5f, groundLayer))
+        {
+            if (hit.collider.TryGetComponent(out MovingPlatform platform))
+            {
+                currentPlatform = platform;
+                return;
+            }
+        }
+
+        currentPlatform = null;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (jumpChecker != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(jumpChecker.position, jumpCheckerRadius);
+        }
     }
 }
+

@@ -11,8 +11,14 @@ public class MeshRotator : MonoBehaviour
 
     private Vector3 moveInput;
 
+    [SerializeField] PlayerController playerController;
+
     void Update()
     {
+        if (playerController.CurrentState == PlayerController.PlayerStates.Ragdoll)
+        {
+            return;
+        }
         // Get input
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
