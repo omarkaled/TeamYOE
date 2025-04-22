@@ -20,7 +20,10 @@ public class JumpPad : MonoBehaviour
 
                 // Apply force based on the normal
                 playerRb.AddForce(launchDirection * jumpForce, ForceMode.VelocityChange);
-                playerController.isOnSafePlatform = true;
+                if (playerController != null)
+                {
+                    playerController.isOnSafePlatform = true;
+                }
             }
         }
     }

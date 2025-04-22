@@ -329,6 +329,7 @@ GameObject:
   - component: {fileID: 6678116653225818426}
   - component: {fileID: 4117665710381668418}
   - component: {fileID: 5224951652462015727}
+  - component: {fileID: 2587697638317347976}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -451,6 +452,7 @@ MonoBehaviour:
   - {fileID: 2115866341988899115}
   cylinderCenter: {fileID: 0}
   ragdollRecoveryTime: 3
+  isOnSafePlatform: 0
   OnRagdollActivate:
     m_PersistentCalls:
       m_Calls: []
@@ -458,7 +460,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   safeAreaBottomMin: 220
-  safeAreaBottomMax: 320
+  safeAreaBottomMax: 315
   CurrentState: 0
 --- !u!114 &5224951652462015727
 MonoBehaviour:
@@ -476,6 +478,28 @@ MonoBehaviour:
   cameraTransform: {fileID: 2052690043571348851}
   rotationSpeed: 10
   playerController: {fileID: 4117665710381668418}
+--- !u!114 &2587697638317347976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7223824503388780904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 744258c027297cf4cb145f28ed330aa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDamage:
+    m_PersistentCalls:
+      m_Calls: []
+  OnHeal:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &8693788256090358599
 GameObject:
   m_ObjectHideFlags: 0

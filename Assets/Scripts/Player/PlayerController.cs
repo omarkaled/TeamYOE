@@ -1,3 +1,4 @@
+using JetBrains.Rider.Unity.Editor;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -210,9 +211,9 @@ public class PlayerController : MonoBehaviour
         {
             Collider collider = rb.GetComponent<Collider>();
             collider.enabled = true;
+            rb.isKinematic = false;
             rb.linearVelocity = Vector3.zero; // <- this is important
             rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = false;
         }
         playerAnimator.enabled = false;
     }
@@ -252,6 +253,14 @@ public class PlayerController : MonoBehaviour
         foreach (Rigidbody rb in ragdollRigidbodies)
         {
             rb.AddExplosionForce(explosionForce, radiusOriginPoint, explosionRadius);
+        }
+    }
+
+    public void AddImpulseForceToRagdoll(Vector3 force, ForceMode forceMode)
+    {
+        foreach (Rigidbody rb in ragdollRigidbodies)
+        {
+            rb.AddForce(force, forceMode);
         }
     }
     private void HandleJump()
