@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -12,14 +13,18 @@ public class Health : MonoBehaviour
     public UnityEvent OnDamage;
     public UnityEvent OnHeal;
 
+    private CinemachineImpulseSource impulseSource;
+
     private void Start()
     {
         currentHealth = maxHealth;
+        impulseSource = GetComponent<CinemachineImpulseSource>();
     }
 
     public void TakeDamage(float amount)
     {
         currentHealth -= amount;
+        impulseSource.GenerateImpulse();
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         OnDamage.Invoke();
         if (currentHealth <= 0f)
