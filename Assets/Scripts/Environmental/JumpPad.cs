@@ -4,9 +4,9 @@ public class JumpPad : MonoBehaviour
 {
     [SerializeField] private float jumpForce = 15f;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision other)
     {
-        Rigidbody playerRb = other.attachedRigidbody;
+        Rigidbody playerRb = other.gameObject.GetComponent<Rigidbody>();
         PlayerController playerController = playerRb.GetComponent<PlayerController>();
         if (playerRb != null)
         {

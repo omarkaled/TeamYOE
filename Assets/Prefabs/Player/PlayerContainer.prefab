@@ -30,8 +30,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3291003410220515025}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08367783, y: 0.0000000020668856, z: -1.7356128e-10, w: 0.9964929}
-  m_LocalPosition: {x: 0, y: 5.946327, z: -3.6618671}
+  m_LocalRotation: {x: 0.08367785, y: 0.0000000037122256, z: -3.117243e-10, w: 0.99649286}
+  m_LocalPosition: {x: 0, y: 5.946327, z: -3.6618674}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -94,17 +94,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CollideAgainst:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 257
   IgnoreTag: 
   TransparentLayers:
     serializedVersion: 2
     m_Bits: 0
-  MinimumDistanceFromTarget: 0.3
+  MinimumDistanceFromTarget: 0.01
   AvoidObstacles:
     Enabled: 1
     DistanceLimit: 0
     MinimumOcclusionTime: 0
-    CameraRadius: 10.37
+    CameraRadius: 0.25
     UseFollowTarget:
       Enabled: 0
       YOffset: 0
@@ -309,7 +309,7 @@ Transform:
   m_GameObject: {fileID: 6501199431121728404}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.037, z: 0}
+  m_LocalPosition: {x: 0, y: -0.114, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -429,7 +429,7 @@ MonoBehaviour:
   rotationSpeed: 10
   jumpForce: 140
   jumpChecker: {fileID: 3350144172995498239}
-  jumpCheckerRadius: 0.1
+  jumpCheckerRadius: 0.2
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
@@ -460,7 +460,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   safeAreaBottomMin: 220
-  safeAreaBottomMax: 315
+  safeAreaBottomMax: 330
   CurrentState: 0
 --- !u!114 &5224951652462015727
 MonoBehaviour:
@@ -593,9 +593,45 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7835883442465335979, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: -6263224298274609785, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: -5430349752165558963, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: -4680132292043048032, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: -616029993859439833, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: -374315332090798035, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 715473749374785693, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 879224236330229077, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b0e04d1f12503604e8a220150b855698, type: 3}
       propertyPath: m_Name
       value: SenseiProx_Rig
+      objectReference: {fileID: 0}
+    - target: {fileID: 5311257606244869219, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: b0e04d1f12503604e8a220150b855698, type: 3}
       propertyPath: m_Controller
@@ -604,6 +640,14 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: b0e04d1f12503604e8a220150b855698, type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485545844216961410, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8502591297362334338, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -84,6 +84,7 @@ public class HomingBullet : MonoBehaviour
 
                 // Trigger ragdoll
                 player.ActivateRagdoll();
+                Debug.Log("BulletActivatingRagdoll");
                 yield return new WaitForFixedUpdate();
 
                 // Add explosion force to ragdoll

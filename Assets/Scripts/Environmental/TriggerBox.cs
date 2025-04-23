@@ -11,6 +11,7 @@ public class TriggerBox : MonoBehaviour
     {
         if (other.gameObject.CompareTag(tagFilter))
         {
+            Debug.Log("Entered Trigger Box");
             OnEnterTrigger.Invoke();
         }
     }

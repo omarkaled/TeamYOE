@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6428865580506509068}
   - component: {fileID: 7042703197077926362}
   - component: {fileID: 1647897914568881332}
+  - component: {fileID: 6533904447705275283}
   m_Layer: 7
   m_Name: KillZVolume
   m_TagString: Untagged
@@ -70,7 +71,7 @@ MonoBehaviour:
   OnEnterTrigger:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6533904447705275283}
         m_TargetAssemblyTypeName: Loader, Assembly-CSharp
         m_MethodName: LoadScene
         m_Mode: 5
@@ -79,9 +80,21 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: Omar-Gym
+          m_StringArgument: GameScene
           m_BoolArgument: 0
         m_CallState: 2
   OnExitTrigger:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6533904447705275283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4483795963477242848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aae225eb744bd544e9c29d4b00770a1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
