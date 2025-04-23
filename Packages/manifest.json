@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.naelstrof.jigglephysics": "https://github.com/naelstrof/UnityJigglePhysics.git#upm",
     "com.kyrylokuzyk.primetween": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
     "com.unity.ai.navigation": "2.0.5",
     "com.unity.cinemachine": "3.1.3",
