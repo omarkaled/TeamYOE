@@ -9,8 +9,14 @@ EditorBuildSettings:
     path: Assets/Scenes/RollingDungeonMenu.unity
     guid: 2bd625d71bf867f4d90e3ffe32110c64
   - enabled: 1
+    path: Assets/Scenes/IntroCutsceneReal.unity
+    guid: 40287d03939514a4bbb20d264cb2768a
+  - enabled: 1
     path: Assets/Scenes/GameScene.unity
     guid: 5d55fe144f1d15c499a3b196d62884ee
+  - enabled: 1
+    path: Assets/Scenes/FinalCutscene.unity
+    guid: 38a314a2f517dbb4e9e8eaf0572bc2f7
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
