@@ -1,6 +1,7 @@
 using JetBrains.Rider.Unity.Editor;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,6 +21,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("References")]
     public Transform cameraTransform;
+    [SerializeField] private GameObject _jumpVFXPrefab;
 
     private Rigidbody rb;
     private Vector3 moveDirection;
@@ -94,22 +96,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            ActivateRagdoll();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            DeactivateRagdoll();
-        }
-
         // Ground check
         isGrounded = Physics.OverlapSphere(jumpChecker.position, jumpCheckerRadius, groundLayer).Length > 0;
 
@@ -158,13 +144,6 @@ public class PlayerController : MonoBehaviour
             isOnSafePlatform = false;
         }
     }
-    //void OnTriggerExit(Collider other)
-    //{
-    //    if (other.gameObject.CompareTag("Platform"))
-    //    {
-    //        isOnSafePlatform = false;
-    //    }
-    //}
 
     private void HandleInput()
     {
@@ -212,7 +191,7 @@ public class PlayerController : MonoBehaviour
             Collider collider = rb.GetComponent<Collider>();
             collider.enabled = true;
             rb.isKinematic = false;
-            rb.linearVelocity = Vector3.zero; // <- this is important
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
         playerAnimator.enabled = false;
@@ -265,10 +244,11 @@ public class PlayerController : MonoBehaviour
     }
     private void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && canJump)
+        if (Input.GetButtonDown("Jump") && isGrounded && canJump)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             StartCoroutine(JumpCooldownRoutine());
+            _jumpVFXPrefab.gameObject.SetActive(true);
         }
     }
 
@@ -277,6 +257,7 @@ public class PlayerController : MonoBehaviour
         canJump = false;
         yield return new WaitForSeconds(jumpCooldown);
         canJump = true;
+        _jumpVFXPrefab.gameObject.SetActive(false);
     }
 
     void FixedUpdate()
