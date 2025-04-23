@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -80,6 +81,10 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            SceneManager.LoadScene("FinalCutscene");
+        }
         #region AnimationParameters
         if (isGrounded)
         {
