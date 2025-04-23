@@ -18,6 +18,8 @@ public class HomingBullet : MonoBehaviour
     [SerializeField] private float impulseForce = 20f;
     [SerializeField] private float explosionDamage = 10f;
     [SerializeField] private LayerMask playerLayer;
+
+    [SerializeField] private GameObject hitEffectPrefab;
     private void Start()
     {
         _target = FindFirstObjectByType<PlayerController>();
@@ -81,7 +83,6 @@ public class HomingBullet : MonoBehaviour
                 {
                     health.TakeDamage(explosionDamage);
                 }
-
                 // Trigger ragdoll
                 player.ActivateRagdoll();
                 Debug.Log("BulletActivatingRagdoll");
@@ -100,6 +101,10 @@ public class HomingBullet : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
+        if (hitEffectPrefab != null)
+        {
+            Instantiate(hitEffectPrefab, transform.position, Quaternion.identity);
+        }
         StartCoroutine(DelayedImpulse());
     }
 }
