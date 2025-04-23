@@ -8,12 +8,14 @@ public class PauseMenu : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.None;
         panelToActivate.SetActive(true);
+        Cursor.visible = true;
         Time.timeScale = 0f;
     }
     public void Unpause()
     {
         Cursor.lockState = CursorLockMode.Locked;
         panelToActivate.SetActive(false);
+        Cursor.visible = false;
         Time.timeScale = 1;
     }
     private void OnDestroy()
