@@ -84,15 +84,18 @@ public class HomingBullet : MonoBehaviour
                     health.TakeDamage(explosionDamage);
                 }
                 // Trigger ragdoll
-                player.ActivateRagdoll();
-                Debug.Log("BulletActivatingRagdoll");
-                yield return new WaitForFixedUpdate();
-
-                // Add explosion force to ragdoll
-                player.AddExplosionForceToRagdoll(explosionForce, explosionCenter, explosionRadius);
-                Vector3 direction = (player.transform.position - explosionCenter).normalized;
-                direction.y = Mathf.Abs(direction.y) + 0.5f; // force upward if needed
-                player.AddImpulseForceToRagdoll(direction.normalized * impulseForce, ForceMode.Impulse);
+                if (player.canBeRagdolledByBullets)
+                {
+                    player.ActivateRagdoll();
+                    Debug.Log("BulletActivatingRagdoll");
+                    yield return new WaitForFixedUpdate();
+    
+                    // Add explosion force to ragdoll
+                    player.AddExplosionForceToRagdoll(explosionForce, explosionCenter, explosionRadius);
+                    Vector3 direction = (player.transform.position - explosionCenter).normalized;
+                    direction.y = Mathf.Abs(direction.y) + 0.5f; // force upward if needed
+                    player.AddImpulseForceToRagdoll(direction.normalized * impulseForce, ForceMode.Impulse);
+                }
             }
 
             // Destroy the bullet after impact

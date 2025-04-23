@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
 
     public bool isOnSafePlatform = false;
     private Coroutine ragdollCooldownRoutine;
+    public bool canBeRagdolledByBullets = true;
 
     [Header("Events")]
     public UnityEvent OnRagdollActivate;
@@ -75,11 +76,33 @@ public class PlayerController : MonoBehaviour
         while(true)
         {
             yield return new WaitForSeconds(2);
-            rb.position = hipsBone.position - new Vector3(0,0.25f,0);
+            //rb.position = hipsBone.position - new Vector3(0,0.25f,0);
         }
     }
     void Update()
     {
+        #region AnimationParameters
+        if (isGrounded)
+        {
+            playerAnimator.SetBool("InAir", false);
+        }
+        if (!isGrounded)
+        {
+            playerAnimator.SetBool("InAir", true);
+            playerAnimator.SetBool("IsIdle", false);
+        }
+        if (rb.linearVelocity.magnitude > 0.1f)
+        {
+            playerAnimator.SetBool("IsRunning", true);
+            playerAnimator.SetBool("IsIdle", false);
+        }
+        if (rb.linearVelocity.magnitude < 0.1f)
+        {
+            playerAnimator.SetBool("IsRunning", false);
+            playerAnimator.SetBool("IsIdle", true);
+        }
+
+        #endregion
         if (CurrentState != PlayerStates.Ragdoll)
         {
             HandleInput();
@@ -138,10 +161,12 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Platform"))
         {
             isOnSafePlatform = true;
+            canBeRagdolledByBullets = false;
         }
         if (other.gameObject.CompareTag("Untagged"))
         {
             isOnSafePlatform = false;
+            canBeRagdolledByBullets = true;
         }
     }
 
@@ -246,6 +271,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && isGrounded && canJump)
         {
+            playerAnimator.SetTrigger("Jump");
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             StartCoroutine(JumpCooldownRoutine());
             _jumpVFXPrefab.gameObject.SetActive(true);

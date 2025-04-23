@@ -62,7 +62,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3291003410220515025}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08367785, y: 0.0000000037122256, z: -3.117243e-10, w: 0.99649286}
+  m_LocalRotation: {x: 0.08367786, y: 0.0000000074244517, z: -6.234487e-10, w: 0.9964929}
   m_LocalPosition: {x: 0, y: 5.946327, z: -3.6618674}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -487,6 +487,7 @@ MonoBehaviour:
   cylinderCenter: {fileID: 0}
   ragdollRecoveryTime: 3
   isOnSafePlatform: 0
+  canBeRagdolledByBullets: 1
   OnRagdollActivate:
     m_PersistentCalls:
       m_Calls: []
@@ -696,27 +697,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1708062446365531356, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 2652350978810091666, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 2986531854034262936, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 3170081850341222973, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 5566581766499692010, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 5922938095207769578, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 5962845931527292398, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_Name
@@ -724,7 +725,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6335718654369701922, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 6452418449181318996, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_LocalPosition.x
@@ -768,15 +769,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6993515605515830047, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 7683884999381544434, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     - target: {fileID: 8580957863720213816, guid: eeb6f31d886aa604aafd021b366abb58, type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: Body
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1002,7 +1003,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 858042328960614351}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: b0e04d1f12503604e8a220150b855698, type: 3}
+  m_Avatar: {fileID: 9000000, guid: 4a70f8a21c686c54387bac910de56eb4, type: 3}
   m_Controller: {fileID: 9100000, guid: e7b0d45c8472cd140b377f16238c03e9, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
