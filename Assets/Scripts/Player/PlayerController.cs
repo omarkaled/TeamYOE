@@ -91,16 +91,6 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("InAir", true);
             playerAnimator.SetBool("IsIdle", false);
         }
-        if (rb.linearVelocity.magnitude > 0.1f)
-        {
-            playerAnimator.SetBool("IsRunning", true);
-            playerAnimator.SetBool("IsIdle", false);
-        }
-        if (rb.linearVelocity.magnitude < 0.1f)
-        {
-            playerAnimator.SetBool("IsRunning", false);
-            playerAnimator.SetBool("IsIdle", true);
-        }
 
         #endregion
         if (CurrentState != PlayerStates.Ragdoll)
@@ -174,6 +164,11 @@ public class PlayerController : MonoBehaviour
     {
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
+
+        bool isMoving = Mathf.Abs(h) > 0.1f || Mathf.Abs(v) > 0.1f;
+
+        playerAnimator.SetBool("IsRunning", isMoving);
+        playerAnimator.SetBool("IsIdle", !isMoving);
 
         Vector3 camForward = Vector3.Scale(cameraTransform.forward, new Vector3(1, 0, 1)).normalized;
         Vector3 camRight = cameraTransform.right;

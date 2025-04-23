@@ -14,4 +14,9 @@ public class Loader : MonoBehaviour
             Debug.LogWarning("Scene name not set in Loader!");
         }
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }
