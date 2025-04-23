@@ -285,8 +285,8 @@ MonoBehaviour:
   _initialVelocity: 7
   _bulletRB: {fileID: 9158364686282558732}
   explosionRadius: 1
-  explosionForce: 25
-  impulseForce: 350
+  explosionForce: 15
+  impulseForce: 150
   explosionDamage: 15
   playerLayer:
     serializedVersion: 2
